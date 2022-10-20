@@ -1,6 +1,5 @@
 using namespace std;
 #include<stdio.h>
-#include<stdlib.h>
 #include<bits/stdc++.h>
 
 long long pre_table[301][301];

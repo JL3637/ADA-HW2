@@ -3,29 +3,13 @@ using namespace std;
 
 void encode(char *s, int *arr){
     for(int i = 0; i < strlen(s); i++){
-        if(s[i] <= '9' && s[i] >= '0'){
-            arr[i] = s[i] - '0';
-        }
-        else if(s[i] <= 'Z' && s[i] >= 'A'){
-            arr[i] = s[i] - 'A' + 10;
-        }
-        else if(s[i] <= 'z' && s[i] >= 'a'){
-            arr[i] = s[i] - 'a' + 36;
-        }
+        arr[i] = s[i];
     }
 }
 
 void decode(int len, int *arr){
     for(int i = 0; i < len; i++){
-        if(arr[i] <= 9 && arr[i] >= 0){
-            printf("%c", arr[i] + '0');
-        }
-        else if(arr[i] <= 35 && arr[i] >= 10){
-            printf("%c", arr[i] + 'A' - 10);
-        }
-        else if(arr[i] <= 61 && arr[i] >= 36){
-            printf("%c", arr[i] + 'a' - 36);
-        }
+        printf("%c", arr[i]);
     }
 }
 
@@ -61,7 +45,7 @@ int segFind(vector<int>& seg, int pos_start, int pos_end, int start, int end, in
     return left + right;
 }
 
-void min_by_k_Swaps(int *arr, int n, long long k, int *result){
+void min_by_k_Swaps(int *arr, int n, int k, int *result){
     vector<int> seg((2 * (int)pow(2,(int)(ceil(log2(n)))) - 1), 0);
     unordered_map<int, list<int> > m;
     for(int i = 0; i < n; i++){
@@ -69,7 +53,7 @@ void min_by_k_Swaps(int *arr, int n, long long k, int *result){
     }
     int result_top = 0;
     for(int i = 0; i < n; i++){
-        for(int j = 0; j <= 62; j++){
+        for(int j = 0; j <= 122; j++){
             if(m[j].size() != 0){
                 int original_pos= m[j].front();
                 int shift = segFind(seg, original_pos, n - 1, 0, n - 1, 0);

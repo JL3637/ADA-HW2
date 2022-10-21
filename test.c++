@@ -1,72 +1,76 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-void segAdd(vector<int>& seg, int start, int end, int pos, int curr){
-    if(pos < start || pos > end){
-        return;
-    }
-    if(start == end){
-        seg[curr] = 1;
-        return;
-    }
-
-    int mid = (start + end) / 2;
-    segAdd(seg, start, mid, pos, 2 * curr + 1);
-    segAdd(seg, mid + 1, end, pos, 2 * curr + 2);
-
-    seg[curr] = seg[2 * curr + 1] + seg[2 * curr + 2];
- 
-    return;
-}
-
-int segFind(vector<int>& seg, int pos_start, int pos_end, int start, int end, int curr){
-    if(pos_end < start || pos_start > end){
-        return 0;
-    }
-    if(pos_start <= start && pos_end >= end){
-        return seg[curr];
-    }
-
-    int mid = (start + end) / 2;
-    int left = segFind(seg, pos_start, pos_end, start, mid, 2 * curr + 1);
-    int right = segFind(seg, pos_start, pos_end, mid + 1, end, 2 * curr + 2);
-    return left + right;
-}
-
 string min_by_k_Swaps(string s, long long k){
     int n = s.size();
-    vector<int> seg((2 * (int)pow(2,(int)(ceil(log2(n)))) - 1), 0);
-    unordered_map<int, list<int> > m;
+    string res;
+    res.reserve(n);
+    vector<int> q(62, n);
     for(int i = 0; i < n; i++){
-        m[s[i]].push_back(i);
+        int d;
+        if(s[i] <= '9'){
+            d = s[i] - '0';
+        }
+        else if(s[i] <= 'Z'){
+            d = s[i] - 'A' + 10;
+        }
+        else if(s[i] <= 'z'){
+            d = s[i] - 'a' + 36;
+        }
+        if(q[d] == n){
+            q[d] = i;
+        }
     }
-    string result = "";
+    vector<bool> used(n);
+    vector<int> q_used(62);
     for(int i = 0; i < n; i++){
-        for(int j = '0'; j <= 'z'; j++){
-            if(j == '9'+1){
-                j = 'A'-1;
+        for(int d = 0; d < 62; d++){
+            if(q[d] == n){
                 continue;
             }
-            if(j == 'Z'+1){
-                j = 'a'-1;
-                continue;
-            }
-            if(m[j].size() != 0){
-                int original_pos= m[j].front();
-                int shift = segFind(seg, original_pos, n - 1, 0, n - 1, 0);
-                int new_pos = original_pos + shift - i;
- 
-                if (new_pos <= k){
-                    k -= new_pos;
-                    segAdd(seg, 0, n - 1, original_pos, 0);
-                    result.push_back(j);
-                    m[j].pop_front();
-                    break;
+            int c = q[d] - q_used[d];
+            if(c <= k){
+                k -= c;
+                if(d <= 9){
+                    res.push_back('0' + d);
                 }
+                else if(d <= 35){
+                    res.push_back('A' + d - 10);
+                }
+                else if(d <= 61){
+                    res.push_back('a' + d - 36);
+                }
+                used[q[d]] = true;
+                for(int d1 = 0; d1 < 62; d1++){
+                    if(q[d1] > q[d]){
+                        q_used[d1]++;
+                    }
+                }
+                while(q[d] < n){
+                    if(used[q[d]]){
+                        ++q_used[d];
+                    }
+                    if(d <= 9){
+                        if(s[++q[d]] == '0' + d){
+                            break;
+                        }
+                    }
+                    else if(d <= 35){
+                        if(s[++q[d]] == 'A' + d - 10){
+                            break;
+                        }
+                    }
+                    else if(d <= 61){
+                        if(s[++q[d]] == 'a' + d - 36){
+                            break;
+                        }
+                    }
+                }
+                break;
             }
         }
     }
-    return result;
+    return res;
 }
 
 int main(){

@@ -1,34 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-void encode(char *s, int *arr){
-    for(int i = 0; i < strlen(s); i++){
-        if(s[i] <= '9' && s[i] >= '0'){
-            arr[i] = s[i] - '0';
-        }
-        else if(s[i] <= 'Z' && s[i] >= 'A'){
-            arr[i] = s[i] - 'A' + 10;
-        }
-        else if(s[i] <= 'z' && s[i] >= 'a'){
-            arr[i] = s[i] - 'a' + 36;
-        }
-    }
-}
-
-void decode(int len, int *arr){
-    for(int i = 0; i < len; i++){
-        if(arr[i] <= 9 && arr[i] >= 0){
-            printf("%c", arr[i] + '0');
-        }
-        else if(arr[i] <= 35 && arr[i] >= 10){
-            printf("%c", arr[i] + 'A' - 10);
-        }
-        else if(arr[i] <= 61 && arr[i] >= 36){
-            printf("%c", arr[i] + 'a' - 36);
-        }
-    }
-}
-
 void segAdd(vector<int>& seg, int start, int end, int pos, int curr){
     if(pos < start || pos > end){
         return;
@@ -61,43 +33,54 @@ int segFind(vector<int>& seg, int pos_start, int pos_end, int start, int end, in
     return left + right;
 }
 
-void min_by_k_Swaps(int *arr, int n, long long k, int *result){
+string min_by_k_Swaps(string s, long long k){
+    int n = s.size();
     vector<int> seg((2 * (int)pow(2,(int)(ceil(log2(n)))) - 1), 0);
     unordered_map<int, list<int> > m;
     for(int i = 0; i < n; i++){
-        m[arr[i]].push_back(i);
+        m[s[i]].push_back(i);
     }
-    int result_top = 0;
+    string result = "";
+    int x = 0;
     for(int i = 0; i < n; i++){
-        for(int j = 0; j <= 62; j++){
+        int y = 0;
+        for(int j = '0' + x; j <= 'z'; j++){
+            if(j == '9'+1){
+                j = 'A'-1;
+                continue;
+            }
+            if(j == 'Z'+1){
+                j = 'a'-1;
+                continue;
+            }
             if(m[j].size() != 0){
                 int original_pos= m[j].front();
                 int shift = segFind(seg, original_pos, n - 1, 0, n - 1, 0);
                 int new_pos = original_pos + shift - i;
  
-                if (new_pos <= k){
+                if(new_pos <= k){
                     k -= new_pos;
                     segAdd(seg, 0, n - 1, original_pos, 0);
-                    result[result_top] = j;
-                    result_top++;
+                    result.push_back(j);
                     m[j].pop_front();
                     break;
                 }
+                y = 1;
+            }
+            else if(y == 0){
+                x++;
             }
         }
+
     }
-    return;
+    return result;
 }
 
 int main(){
-    char s[500001];
+    string s;
     long long k;
-    scanf("%s%lld", s, &k);
-    int arr[strlen(s)];
-    encode(s, arr);
-    int result[strlen(s)];
-    min_by_k_Swaps(arr, strlen(s), k, result);
-    decode(strlen(s), result);
+    cin >> s >> k;
+    cout << min_by_k_Swaps(s, k) << endl;
 
     return 0;
 }
